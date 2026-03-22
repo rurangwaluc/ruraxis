@@ -184,23 +184,23 @@ export function DocumentBuilder() {
 
   return (
     <main className="min-h-screen bg-slate-100 text-slate-900">
-      <div className="mx-auto max-w-[1700px] p-4 lg:p-6 screen-shell">
-        <div className="mb-6 screen-only">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
+      <div className="screen-shell mx-auto max-w-[1700px] p-3 sm:p-4 lg:p-6">
+        <div className="screen-only mb-5 sm:mb-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 sm:text-sm">
             Ruraxis Document System
           </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
             Enterprise-grade business document generator
           </h1>
-          <p className="mt-2 max-w-4xl text-sm text-slate-600">
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600">
             Generate premium invoices, receipts, proformas, and delivery notes
             with live preview, configurable brand identity, selectable currency,
             and print-ready layout.
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[430px_minmax(0,1fr)] xl:grid-cols-[470px_minmax(0,1fr)]">
-          <section className="screen-only rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:overflow-y-auto">
+        <div className="grid gap-4 lg:gap-6 xl:grid-cols-[470px_minmax(0,1fr)]">
+          <section className="screen-only rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
             <div className="mb-5">
               <h2 className="text-lg font-semibold text-slate-950">Document Setup</h2>
               <p className="mt-1 text-sm text-slate-500">
@@ -208,7 +208,7 @@ export function DocumentBuilder() {
               </p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6">
               <BuilderSection title="Document Settings">
                 <div className="grid gap-4">
                   <Field>
@@ -442,7 +442,7 @@ export function DocumentBuilder() {
 
                   <Field>
                     <Label>Upload Logo</Label>
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -454,19 +454,24 @@ export function DocumentBuilder() {
                       <Button
                         type="button"
                         variant="outline"
-                        className="gap-2"
+                        className="w-full gap-2 sm:w-auto"
                         onClick={() => fileInputRef.current?.click()}
                       >
                         <Upload className="h-4 w-4" />
                         Select Logo From Device
                       </Button>
                       {data.company.logoUrl ? (
-                        <Button type="button" variant="ghost" onClick={clearLogo}>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="w-full sm:w-auto"
+                          onClick={clearLogo}
+                        >
                           Remove Logo
                         </Button>
                       ) : null}
                     </div>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs leading-5 text-slate-500">
                       The uploaded file is used directly in the printable preview.
                     </p>
                   </Field>
@@ -485,7 +490,11 @@ export function DocumentBuilder() {
               <BuilderSection title="Customer Details">
                 <div className="grid gap-4">
                   <Field>
-                    <Label>{data.documentType === "DELIVERY_NOTE" ? "Receiver Name" : "Customer Name"}</Label>
+                    <Label>
+                      {data.documentType === "DELIVERY_NOTE"
+                        ? "Receiver Name"
+                        : "Customer Name"}
+                    </Label>
                     <Input
                       value={data.customer.name}
                       onChange={(e) => updateCustomer("name", e.target.value)}
@@ -541,7 +550,9 @@ export function DocumentBuilder() {
                       >
                         <div className="mb-3 flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold text-slate-900">
-                            {data.businessSide === "SOFTWARE" ? `Service ${index + 1}` : `Item ${index + 1}`}
+                            {data.businessSide === "SOFTWARE"
+                              ? `Service ${index + 1}`
+                              : `Item ${index + 1}`}
                           </p>
 
                           {data.items.length > 1 ? (
@@ -559,7 +570,9 @@ export function DocumentBuilder() {
                         <div className="grid gap-4">
                           <Field>
                             <Label>
-                              {data.businessSide === "SOFTWARE" ? "Service Description" : "Item Description"}
+                              {data.businessSide === "SOFTWARE"
+                                ? "Service Description"
+                                : "Item Description"}
                             </Label>
                             <Input
                               value={item.description}
@@ -572,7 +585,9 @@ export function DocumentBuilder() {
                           <div className="grid gap-4 sm:grid-cols-2">
                             <Field>
                               <Label>
-                                {data.businessSide === "SOFTWARE" ? "Units / Phases" : "Quantity"}
+                                {data.businessSide === "SOFTWARE"
+                                  ? "Units / Phases"
+                                  : "Quantity"}
                               </Label>
                               <Input
                                 type="number"
@@ -619,7 +634,12 @@ export function DocumentBuilder() {
                     );
                   })}
 
-                  <Button type="button" variant="outline" className="w-full gap-2" onClick={addItem}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full gap-2"
+                    onClick={addItem}
+                  >
                     <Plus className="h-4 w-4" />
                     {data.businessSide === "SOFTWARE" ? "Add Service" : "Add Item"}
                   </Button>
@@ -627,11 +647,17 @@ export function DocumentBuilder() {
               </BuilderSection>
 
               {!["DELIVERY_NOTE"].includes(data.documentType) ? (
-                <BuilderSection title={data.documentType === "PROFORMA" ? "Quotation Notes" : "Payment & Notes"}>
+                <BuilderSection
+                  title={data.documentType === "PROFORMA" ? "Quotation Notes" : "Payment & Notes"}
+                >
                   <div className="grid gap-4">
                     {!["PROFORMA"].includes(data.documentType) ? (
                       <Field>
-                        <Label>{data.documentType === "RECEIPT" ? "Amount Received" : "Amount Paid"}</Label>
+                        <Label>
+                          {data.documentType === "RECEIPT"
+                            ? "Amount Received"
+                            : "Amount Paid"}
+                        </Label>
                         <Input
                           type="number"
                           min="0"
@@ -642,6 +668,15 @@ export function DocumentBuilder() {
                         />
                       </Field>
                     ) : null}
+
+                    <Field>
+                      <Label>Signed By</Label>
+                      <Input
+                        value={data.signedBy || ""}
+                        onChange={(e) => updateRoot("signedBy", e.target.value)}
+                        placeholder="Enter signer name"
+                      />
+                    </Field>
 
                     <Field>
                       <Label>Notes</Label>
@@ -664,7 +699,9 @@ export function DocumentBuilder() {
                         {!["PROFORMA"].includes(data.documentType) ? (
                           <div className="flex items-center justify-between gap-3">
                             <span className="text-slate-600">
-                              {data.documentType === "RECEIPT" ? "Amount Received" : "Amount Paid"}
+                              {data.documentType === "RECEIPT"
+                                ? "Amount Received"
+                                : "Amount Paid"}
                             </span>
                             <span className="font-semibold text-slate-950">
                               {formatMoney(data.amountPaid ?? 0, data.currency)}
@@ -717,16 +754,27 @@ export function DocumentBuilder() {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-slate-200 p-4 shadow-sm lg:p-6 print-shell">
-            <div className="mb-4 flex items-center justify-end screen-only">
-              <Button type="button" onClick={() => window.print()} className="gap-2">
+          <section className="print-shell rounded-3xl border border-slate-200 bg-slate-200 p-3 shadow-sm sm:p-4 lg:p-6">
+            <div className="screen-only mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-slate-950">Live Preview</h3>
+                <p className="text-sm text-slate-500">
+                  Fixed A4 document preview. Scroll on small screens if needed.
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => window.print()}
+                className="w-full gap-2 sm:w-auto"
+              >
                 <Printer className="h-4 w-4" />
                 Print Preview
               </Button>
             </div>
 
-            <div className="overflow-auto">
-              <div id="print-document">
+            <div className="overflow-x-auto">
+              <div id="print-document" className="min-w-[210mm]">
                 <DocumentPreview data={data} subtotal={subtotal} balance={balance} />
               </div>
             </div>
@@ -756,6 +804,10 @@ function BuilderSection({
   );
 }
 
-function Field({ children }: { children: React.ReactNode }) {
+function Field({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <div className="grid gap-2">{children}</div>;
 }
