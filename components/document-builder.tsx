@@ -199,8 +199,8 @@ export function DocumentBuilder() {
           </p>
         </div>
 
-        <div className="grid gap-4 lg:gap-6 xl:grid-cols-[470px_minmax(0,1fr)]">
-          <section className="screen-only rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
+        <div className="grid gap-4 lg:gap-6 lg:grid-cols-[420px_minmax(0,1fr)] xl:grid-cols-[470px_minmax(0,1fr)]">
+          <section className="screen-only rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:rounded-3xl sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
             <div className="mb-5">
               <h2 className="text-lg font-semibold text-slate-950">Document Setup</h2>
               <p className="mt-1 text-sm text-slate-500">
@@ -754,7 +754,7 @@ export function DocumentBuilder() {
             </div>
           </section>
 
-          <section className="print-shell rounded-3xl border border-slate-200 bg-slate-200 p-3 shadow-sm sm:p-4 lg:p-6">
+          <section className="print-shell rounded-2xl border border-slate-200 bg-slate-200 p-2 shadow-sm sm:rounded-3xl sm:p-4 lg:p-6">
             <div className="screen-only mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-slate-950">Live Preview</h3>
@@ -774,8 +774,10 @@ export function DocumentBuilder() {
             </div>
 
             <div className="overflow-x-auto">
-              <div id="print-document" className="min-w-[210mm]">
-                <DocumentPreview data={data} subtotal={subtotal} balance={balance} />
+              <div className="origin-top-left scale-[0.62] sm:scale-[0.78] lg:scale-100">
+                <div id="print-document" className="min-w-[210mm]">
+                  <DocumentPreview data={data} subtotal={subtotal} balance={balance} />
+                </div>
               </div>
             </div>
           </section>
@@ -794,12 +796,12 @@ function BuilderSection({
 }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white">
-      <div className="border-b border-slate-200 px-4 py-3">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+      <div className="border-b border-slate-200 px-3 py-3 sm:px-4">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-sm">
           {title}
         </h3>
       </div>
-      <div className="p-4">{children}</div>
+      <div className="p-3 sm:p-4">{children}</div>
     </section>
   );
 }
