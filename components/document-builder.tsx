@@ -199,8 +199,8 @@ export function DocumentBuilder() {
           </p>
         </div>
 
-        <div className="grid gap-4 lg:gap-6 lg:grid-cols-[420px_minmax(0,1fr)] xl:grid-cols-[470px_minmax(0,1fr)]">
-          <section className="screen-only rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:rounded-3xl sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
+        <div className="grid min-w-0 gap-4 lg:gap-6 lg:grid-cols-[420px_minmax(0,1fr)] xl:grid-cols-[470px_minmax(0,1fr)]">
+          <section className="screen-only min-w-0 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:rounded-3xl sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
             <div className="mb-5">
               <h2 className="text-lg font-semibold text-slate-950">Document Setup</h2>
               <p className="mt-1 text-sm text-slate-500">
@@ -754,7 +754,7 @@ export function DocumentBuilder() {
             </div>
           </section>
 
-          <section className="print-shell rounded-2xl border border-slate-200 bg-slate-200 p-2 shadow-sm sm:rounded-3xl sm:p-4 lg:p-6">
+          <section className="print-shell min-w-0 rounded-2xl border border-slate-200 bg-slate-200 p-2 shadow-sm sm:rounded-3xl sm:p-4 lg:p-6">
             <div className="screen-only mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-slate-950">Live Preview</h3>
@@ -773,10 +773,16 @@ export function DocumentBuilder() {
               </Button>
             </div>
 
-            <div className="overflow-x-auto">
-              <div className="origin-top-left scale-[0.62] sm:scale-[0.78] lg:scale-100">
-                <div id="print-document" className="min-w-[210mm]">
-                  <DocumentPreview data={data} subtotal={subtotal} balance={balance} />
+            <div className="w-full overflow-x-auto">
+              <div className="flex justify-start lg:justify-center">
+                <div className="shrink-0">
+                  <div id="print-document" className="w-[210mm]">
+                    <DocumentPreview
+                      data={data}
+                      subtotal={subtotal}
+                      balance={balance}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -811,5 +817,5 @@ function Field({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="grid gap-2">{children}</div>;
+  return <div className="grid min-w-0 gap-2">{children}</div>;
 }

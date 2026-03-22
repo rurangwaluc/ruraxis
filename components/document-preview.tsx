@@ -74,7 +74,7 @@ export function DocumentPreview({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col px-[28px] pt-[24px] pb-[20px]">
+      <div className="flex flex-1 flex-col px-[28px] pb-[20px] pt-[24px]">
         <div className="grid grid-cols-[1.45fr_0.85fr] gap-8">
           <div>
             <div className="grid grid-cols-[118px_1fr] gap-4">
@@ -87,30 +87,31 @@ export function DocumentPreview({
                   {data.customer.name || "John Doe"}
                 </div>
 
-              <div className="mt-[6px] space-y-[2px] text-[15px] leading-[1.55] text-slate-900">
-                {data.customer.phone ? (
+                <div className="mt-[6px] space-y-[2px] text-[15px] leading-[1.55] text-slate-900">
+                  {data.customer.phone ? (
                     <div>
-                    <span className="font-medium">Phone:</span> {data.customer.phone}
+                      <span className="font-medium">Phone:</span> {data.customer.phone}
                     </div>
-                ) : null}
+                  ) : null}
 
-                {data.customer.companyName ? (
+                  {data.customer.companyName ? (
                     <div>
-                    <span className="font-medium">Company Name:</span> {data.customer.companyName}
+                      <span className="font-medium">Company Name:</span>{" "}
+                      {data.customer.companyName}
                     </div>
-                ) : null}
+                  ) : null}
 
-                {data.customer.address ? (
+                  {data.customer.address ? (
                     <div>
-                    <span className="font-medium">Address:</span> {data.customer.address}
+                      <span className="font-medium">Address:</span> {data.customer.address}
                     </div>
-                ) : null}
+                  ) : null}
 
-                {data.customer.email ? (
+                  {data.customer.email ? (
                     <div>
-                    <span className="font-medium">Email:</span> {data.customer.email}
+                      <span className="font-medium">Email:</span> {data.customer.email}
                     </div>
-                ) : null}
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -126,10 +127,6 @@ export function DocumentPreview({
                 icon={<Mail className="h-[15px] w-[15px]" />}
                 text={data.company.emails.primary}
               />
-              {/* <ContactLine
-                icon={<Mail className="h-[15px] w-[15px]" />}
-                text={data.company.emails.secondary}
-              /> */}
               <ContactLine
                 icon={<Phone className="h-[15px] w-[15px]" />}
                 text={data.company.phone}
@@ -152,7 +149,9 @@ export function DocumentPreview({
                   {isDeliveryNote ? "QTY ORDERED" : "QTY"}
                 </th>
                 <th className="w-[22%] border-r border-white/10 px-[14px] py-[13px] text-center text-[14px] font-semibold uppercase">
-                  {isDeliveryNote ? "QTY DELIVERED" : `UNIT PRICE (${data.currency})`}
+                  {isDeliveryNote
+                    ? "QTY DELIVERED"
+                    : `UNIT PRICE (${data.currency})`}
                 </th>
                 <th className="w-[21%] px-[14px] py-[13px] text-center text-[14px] font-semibold uppercase">
                   {isDeliveryNote ? "REMARKS" : `AMOUNT (${data.currency})`}
@@ -285,7 +284,11 @@ export function DocumentPreview({
           />
           <FooterContact
             icon={<Mail className="h-[15px] w-[15px]" />}
-            text={data.company.emails.secondary?.trim() ? data.company.emails.secondary : "support@ruraxis.com"}
+            text={
+              data.company.emails.secondary?.trim()
+                ? data.company.emails.secondary
+                : "support@ruraxis.com"
+            }
           />
         </div>
       </div>

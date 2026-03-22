@@ -121,12 +121,19 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   html {
     @apply font-sans;
   }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+html,
+body {
+  overflow-x: hidden;
 }
 
 .invoice-a4 {
@@ -143,6 +150,10 @@
     max-width: 920px;
     min-height: auto;
   }
+
+  .screen-shell {
+    overflow-x: hidden;
+  }
 }
 
 @media print {
@@ -158,6 +169,7 @@
     background: white !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    overflow: visible !important;
   }
 
   body {
@@ -172,6 +184,7 @@
     margin: 0 !important;
     padding: 0 !important;
     max-width: none !important;
+    overflow: visible !important;
   }
 
   .print-shell {
@@ -180,6 +193,7 @@
     border: 0 !important;
     box-shadow: none !important;
     background: white !important;
+    overflow: visible !important;
   }
 
   #print-document {
