@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { Plus, Printer, Trash2, Upload } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Download, Plus, Printer, Trash2, Upload } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 import { DocumentPreview } from "@/components/document-preview";
 import { defaultDocumentData } from "@/lib/defaults";
@@ -21,7 +23,12 @@ import {
 
 export function DocumentBuilder() {
   const [data, setData] = useState<DocumentData>(defaultDocumentData);
+  const [fitPreview, setFitPreview] = useState(true);
+  const [previewScale, setPreviewScale] = useState(1);
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const printableRef = useRef<HTMLDivElement | null>(null);
 
   const subtotal = useMemo(() => calculateSubtotal(data.items), [data.items]);
   const balance = useMemo(
@@ -33,6 +40,30 @@ export function DocumentBuilder() {
     data.businessSide === "SOFTWARE"
       ? ["INVOICE", "RECEIPT", "PROFORMA"]
       : ["INVOICE", "RECEIPT", "PROFORMA", "DELIVERY_NOTE"];
+
+  useEffect(() => {
+    function computePreviewScale() {
+      if (!fitPreview) {
+        setPreviewScale(1);
+        return;
+      }
+
+      const width = window.innerWidth;
+
+      if (width < 480) return setPreviewScale(0.42);
+      if (width < 640) return setPreviewScale(0.48);
+      if (width < 768) return setPreviewScale(0.56);
+      if (width < 1024) return setPreviewScale(0.66);
+      if (width < 1280) return setPreviewScale(0.74);
+      if (width < 1536) return setPreviewScale(0.82);
+
+      setPreviewScale(0.9);
+    }
+
+    computePreviewScale();
+    window.addEventListener("resize", computePreviewScale);
+    return () => window.removeEventListener("resize", computePreviewScale);
+  }, [fitPreview]);
 
   function updateRoot<K extends keyof DocumentData>(key: K, value: DocumentData[K]) {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -182,6 +213,47 @@ export function DocumentBuilder() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
+  function handlePrint() {
+    window.print();
+  }
+
+  async function handleDownloadPdf() {
+    const element = printableRef.current;
+    if (!element) return;
+
+    try {
+      setIsDownloading(true);
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
+      pdf.save(`${data.documentType.toLowerCase()}-${data.documentNumber}.pdf`);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to generate PDF.");
+    } finally {
+      setIsDownloading(false);
+    }
+  }
+
+  const previewStyle = {
+    "--preview-scale": String(fitPreview ? previewScale : 1),
+  } as React.CSSProperties;
+
   return (
     <main className="min-h-screen bg-slate-100 text-slate-900">
       <div className="screen-shell mx-auto max-w-[1700px] p-3 sm:p-4 lg:p-6">
@@ -199,8 +271,8 @@ export function DocumentBuilder() {
           </p>
         </div>
 
-        <div className="grid min-w-0 gap-4 lg:gap-6 lg:grid-cols-[420px_minmax(0,1fr)] xl:grid-cols-[470px_minmax(0,1fr)]">
-          <section className="screen-only min-w-0 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:rounded-3xl sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
+        <div className="grid min-w-0 gap-4 lg:gap-6 lg:grid-cols-[390px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)]">
+          <section className="screen-only min-w-0 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
             <div className="mb-5">
               <h2 className="text-lg font-semibold text-slate-950">Document Setup</h2>
               <p className="mt-1 text-sm text-slate-500">
@@ -754,38 +826,75 @@ export function DocumentBuilder() {
             </div>
           </section>
 
-          <section className="print-shell min-w-0 rounded-2xl border border-slate-200 bg-slate-200 p-2 shadow-sm sm:rounded-3xl sm:p-4 lg:p-6">
-            <div className="screen-only mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h3 className="text-base font-semibold text-slate-950">Live Preview</h3>
-                <p className="text-sm text-slate-500">
-                  Fixed A4 document preview. Scroll on small screens if needed.
-                </p>
-              </div>
+          <section className="print-shell min-w-0 rounded-3xl border border-slate-200 bg-[#dfe6ef] p-3 shadow-sm sm:p-5 lg:p-6">
+            <div className="screen-only mb-4 rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 backdrop-blur-sm">
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-950">Live Preview</h3>
+                  <p className="text-sm text-slate-500">
+                    Real A4 document. Fit mode changes only the on-screen stage.
+                  </p>
+                </div>
 
-              <Button
-                type="button"
-                onClick={() => window.print()}
-                className="w-full gap-2 sm:w-auto"
-              >
-                <Printer className="h-4 w-4" />
-                Print Preview
-              </Button>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button
+                    type="button"
+                    variant={fitPreview ? "default" : "outline"}
+                    onClick={() => setFitPreview((prev) => !prev)}
+                    className="w-full sm:w-auto"
+                  >
+                    {fitPreview ? "Fit Preview: On" : "Fit Preview: Off"}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleDownloadPdf}
+                    disabled={isDownloading}
+                    className="w-full gap-2 sm:w-auto"
+                  >
+                    <Download className="h-4 w-4" />
+                    {isDownloading ? "Generating PDF..." : "Download PDF"}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    onClick={handlePrint}
+                    className="w-full gap-2 sm:w-auto"
+                  >
+                    <Printer className="h-4 w-4" />
+                    Print Preview
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            <div className="w-full overflow-x-auto">
+            <div className="overflow-x-auto lg:overflow-visible">
               <div className="flex justify-start lg:justify-center">
-                <div className="shrink-0">
-                  <div id="print-document" className="w-[210mm]">
-                    <DocumentPreview
-                      data={data}
-                      subtotal={subtotal}
-                      balance={balance}
-                    />
+                <div
+                  className={fitPreview ? "preview-fit-shell shrink-0" : "shrink-0"}
+                  style={previewStyle}
+                >
+                  <div className={fitPreview ? "preview-fit-inner" : ""}>
+                    <div
+                      id="print-document"
+                      ref={printableRef}
+                      className="w-[210mm] max-w-none"
+                    >
+                      <DocumentPreview
+                        data={data}
+                        subtotal={subtotal}
+                        balance={balance}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <p className="screen-only mt-3 text-xs text-slate-500">
+              PDF export creates a real A4 soft copy using the current document content.
+            </p>
           </section>
         </div>
       </div>

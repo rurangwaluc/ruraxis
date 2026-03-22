@@ -145,14 +145,21 @@ body {
 }
 
 @media screen {
-  .invoice-a4 {
-    width: 100%;
-    max-width: 920px;
-    min-height: auto;
-  }
-
   .screen-shell {
     overflow-x: hidden;
+  }
+
+  .preview-fit-shell {
+    width: calc(210mm * var(--preview-scale));
+    height: calc(297mm * var(--preview-scale));
+    overflow: hidden;
+  }
+
+  .preview-fit-inner {
+    width: 210mm;
+    min-height: 297mm;
+    transform: scale(var(--preview-scale));
+    transform-origin: top left;
   }
 }
 
@@ -193,6 +200,15 @@ body {
     border: 0 !important;
     box-shadow: none !important;
     background: white !important;
+    overflow: visible !important;
+  }
+
+  .preview-fit-shell,
+  .preview-fit-inner {
+    width: auto !important;
+    height: auto !important;
+    min-height: auto !important;
+    transform: none !important;
     overflow: visible !important;
   }
 
