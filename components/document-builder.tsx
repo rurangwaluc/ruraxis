@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Plus, Printer, Trash2, Upload } from "lucide-react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 import { DocumentPreview } from "@/components/document-preview";
 import { defaultDocumentData } from "@/lib/defaults";
@@ -25,10 +23,8 @@ export function DocumentBuilder() {
   const [data, setData] = useState<DocumentData>(defaultDocumentData);
   const [fitPreview, setFitPreview] = useState(true);
   const [previewScale, setPreviewScale] = useState(1);
-  const [isDownloading, setIsDownloading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const printableRef = useRef<HTMLDivElement | null>(null);
 
   const subtotal = useMemo(() => calculateSubtotal(data.items), [data.items]);
   const balance = useMemo(
@@ -214,40 +210,21 @@ export function DocumentBuilder() {
   }
 
   function handlePrint() {
+    const previousTitle = document.title;
+    document.title = `${data.documentType.toLowerCase()}-${data.documentNumber}`;
     window.print();
+    setTimeout(() => {
+      document.title = previousTitle;
+    }, 300);
   }
 
-  async function handleDownloadPdf() {
-    const element = printableRef.current;
-    if (!element) return;
-
-    try {
-      setIsDownloading(true);
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-        compress: true,
-      });
-
-      pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
-      pdf.save(`${data.documentType.toLowerCase()}-${data.documentNumber}.pdf`);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate PDF.");
-    } finally {
-      setIsDownloading(false);
-    }
+  function handleDownloadPdf() {
+    const previousTitle = document.title;
+    document.title = `${data.documentType.toLowerCase()}-${data.documentNumber}`;
+    window.print();
+    setTimeout(() => {
+      document.title = previousTitle;
+    }, 300);
   }
 
   const previewStyle = {
@@ -272,11 +249,11 @@ export function DocumentBuilder() {
         </div>
 
         <div className="grid min-w-0 gap-4 lg:gap-6 lg:grid-cols-[390px_minmax(0,1fr)] xl:grid-cols-[430px_minmax(0,1fr)]">
-          <section className="screen-only min-w-0 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
-            <div className="mb-5">
+          <section className="builder-panel screen-only min-w-0 rounded-3xl border border-slate-200 p-3 shadow-sm sm:p-5 xl:sticky xl:top-4 xl:h-[calc(100vh-2rem)] xl:overflow-y-auto">
+            <div className="mb-5 rounded-2xl border border-slate-200 bg-white/70 px-4 py-4">
               <h2 className="text-lg font-semibold text-slate-950">Document Setup</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Edit the fields. The preview updates instantly.
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Edit the document with live feedback, premium branding, and export-ready formatting.
               </p>
             </div>
 
@@ -291,7 +268,7 @@ export function DocumentBuilder() {
                         handleBusinessSideChange(value)
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 rounded-xl bg-white">
                         <SelectValue placeholder="Select business side" />
                       </SelectTrigger>
                       <SelectContent>
@@ -309,7 +286,7 @@ export function DocumentBuilder() {
                         handleDocumentTypeChange(value)
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 rounded-xl bg-white">
                         <SelectValue placeholder="Select document type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -331,7 +308,7 @@ export function DocumentBuilder() {
                           updateRoot("currency", value)
                         }
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="h-11 rounded-xl bg-white">
                           <SelectValue placeholder="Select currency" />
                         </SelectTrigger>
                         <SelectContent>
@@ -350,7 +327,7 @@ export function DocumentBuilder() {
                             updateRoot("paymentMethod", value)
                           }
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="h-11 rounded-xl bg-white">
                             <SelectValue placeholder="Select payment method" />
                           </SelectTrigger>
                           <SelectContent>
@@ -367,6 +344,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Document Number</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.documentNumber}
                         onChange={(e) => updateRoot("documentNumber", e.target.value)}
                       />
@@ -375,6 +353,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Issue Date</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         type="date"
                         value={data.issueDate}
                         onChange={(e) => updateRoot("issueDate", e.target.value)}
@@ -387,6 +366,7 @@ export function DocumentBuilder() {
                       <Field>
                         <Label>Due Date</Label>
                         <Input
+                          className="h-11 rounded-xl bg-white"
                           type="date"
                           value={data.dueDate || ""}
                           onChange={(e) => updateRoot("dueDate", e.target.value)}
@@ -401,7 +381,7 @@ export function DocumentBuilder() {
                             updateRoot("paymentStatus", value)
                           }
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="h-11 rounded-xl bg-white">
                             <SelectValue placeholder="Select status" />
                           </SelectTrigger>
                           <SelectContent>
@@ -418,6 +398,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Valid Until</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         type="date"
                         value={data.validUntil || ""}
                         onChange={(e) => updateRoot("validUntil", e.target.value)}
@@ -429,6 +410,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Related Invoice Number</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.relatedInvoiceNumber || ""}
                         onChange={(e) =>
                           updateRoot("relatedInvoiceNumber", e.target.value)
@@ -445,6 +427,7 @@ export function DocumentBuilder() {
                   <Field>
                     <Label>Company Name</Label>
                     <Input
+                      className="h-11 rounded-xl bg-white"
                       value={data.company.name}
                       onChange={(e) => updateCompany("name", e.target.value)}
                     />
@@ -453,6 +436,7 @@ export function DocumentBuilder() {
                   <Field>
                     <Label>Tagline</Label>
                     <Input
+                      className="h-11 rounded-xl bg-white"
                       value={data.company.tagline || ""}
                       onChange={(e) => updateCompany("tagline", e.target.value)}
                     />
@@ -461,6 +445,7 @@ export function DocumentBuilder() {
                   <Field>
                     <Label>Website</Label>
                     <Input
+                      className="h-11 rounded-xl bg-white"
                       value={data.company.website}
                       onChange={(e) => updateCompany("website", e.target.value)}
                     />
@@ -470,6 +455,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Primary Email</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.company.emails.primary}
                         onChange={(e) => updateCompanyEmail("primary", e.target.value)}
                       />
@@ -478,6 +464,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Secondary Email</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.company.emails.secondary || ""}
                         onChange={(e) => updateCompanyEmail("secondary", e.target.value)}
                       />
@@ -488,6 +475,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Phone</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.company.phone || ""}
                         onChange={(e) => updateCompany("phone", e.target.value)}
                       />
@@ -496,6 +484,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>TIN</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.company.tin || ""}
                         onChange={(e) => updateCompany("tin", e.target.value)}
                       />
@@ -505,6 +494,7 @@ export function DocumentBuilder() {
                   <Field>
                     <Label>Registration Number</Label>
                     <Input
+                      className="h-11 rounded-xl bg-white"
                       value={data.company.registrationNumber || ""}
                       onChange={(e) =>
                         updateCompany("registrationNumber", e.target.value)
@@ -526,7 +516,7 @@ export function DocumentBuilder() {
                       <Button
                         type="button"
                         variant="outline"
-                        className="w-full gap-2 sm:w-auto"
+                        className="h-11 w-full rounded-xl gap-2 bg-white sm:w-auto"
                         onClick={() => fileInputRef.current?.click()}
                       >
                         <Upload className="h-4 w-4" />
@@ -536,7 +526,7 @@ export function DocumentBuilder() {
                         <Button
                           type="button"
                           variant="ghost"
-                          className="w-full sm:w-auto"
+                          className="h-11 w-full rounded-xl sm:w-auto"
                           onClick={clearLogo}
                         >
                           Remove Logo
@@ -551,6 +541,7 @@ export function DocumentBuilder() {
                   <Field>
                     <Label>Address</Label>
                     <Textarea
+                      className="min-h-[104px] rounded-2xl bg-white"
                       value={data.company.address || ""}
                       onChange={(e) => updateCompany("address", e.target.value)}
                       rows={3}
@@ -568,6 +559,7 @@ export function DocumentBuilder() {
                         : "Customer Name"}
                     </Label>
                     <Input
+                      className="h-11 rounded-xl bg-white"
                       value={data.customer.name}
                       onChange={(e) => updateCustomer("name", e.target.value)}
                     />
@@ -576,6 +568,7 @@ export function DocumentBuilder() {
                   <Field>
                     <Label>Company Name</Label>
                     <Input
+                      className="h-11 rounded-xl bg-white"
                       value={data.customer.companyName || ""}
                       onChange={(e) => updateCustomer("companyName", e.target.value)}
                     />
@@ -585,6 +578,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Phone</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.customer.phone || ""}
                         onChange={(e) => updateCustomer("phone", e.target.value)}
                       />
@@ -593,6 +587,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Email</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.customer.email || ""}
                         onChange={(e) => updateCustomer("email", e.target.value)}
                       />
@@ -602,6 +597,7 @@ export function DocumentBuilder() {
                   <Field>
                     <Label>Address</Label>
                     <Textarea
+                      className="min-h-[104px] rounded-2xl bg-white"
                       value={data.customer.address || ""}
                       onChange={(e) => updateCustomer("address", e.target.value)}
                       rows={3}
@@ -616,10 +612,7 @@ export function DocumentBuilder() {
                     const amount = item.quantity * item.unitPrice;
 
                     return (
-                      <div
-                        key={item.id}
-                        className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
-                      >
+                      <div key={item.id} className="builder-item-card rounded-2xl p-4">
                         <div className="mb-3 flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold text-slate-900">
                             {data.businessSide === "SOFTWARE"
@@ -632,6 +625,7 @@ export function DocumentBuilder() {
                               type="button"
                               variant="ghost"
                               size="icon"
+                              className="rounded-xl"
                               onClick={() => removeItem(item.id)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -647,6 +641,7 @@ export function DocumentBuilder() {
                                 : "Item Description"}
                             </Label>
                             <Input
+                              className="h-11 rounded-xl bg-white"
                               value={item.description}
                               onChange={(e) =>
                                 updateItem(item.id, "description", e.target.value)
@@ -662,6 +657,7 @@ export function DocumentBuilder() {
                                   : "Quantity"}
                               </Label>
                               <Input
+                                className="h-11 rounded-xl bg-white"
                                 type="number"
                                 min="0"
                                 value={item.quantity}
@@ -675,6 +671,7 @@ export function DocumentBuilder() {
                               <Field>
                                 <Label>Unit Price</Label>
                                 <Input
+                                  className="h-11 rounded-xl bg-white"
                                   type="number"
                                   min="0"
                                   value={item.unitPrice}
@@ -686,13 +683,17 @@ export function DocumentBuilder() {
                             ) : (
                               <Field>
                                 <Label>Remarks</Label>
-                                <Input value="Delivered" readOnly />
+                                <Input
+                                  className="h-11 rounded-xl bg-white"
+                                  value="Delivered"
+                                  readOnly
+                                />
                               </Field>
                             )}
                           </div>
 
                           {!["DELIVERY_NOTE"].includes(data.documentType) ? (
-                            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
+                            <div className="builder-summary-card rounded-xl px-4 py-3 text-sm">
                               <div className="flex items-center justify-between gap-3">
                                 <span className="text-slate-600">Line Total</span>
                                 <span className="font-semibold text-slate-950">
@@ -709,7 +710,7 @@ export function DocumentBuilder() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full gap-2"
+                    className="h-11 w-full rounded-xl gap-2 bg-white"
                     onClick={addItem}
                   >
                     <Plus className="h-4 w-4" />
@@ -731,6 +732,7 @@ export function DocumentBuilder() {
                             : "Amount Paid"}
                         </Label>
                         <Input
+                          className="h-11 rounded-xl bg-white"
                           type="number"
                           min="0"
                           value={data.amountPaid ?? 0}
@@ -744,6 +746,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Signed By</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.signedBy || ""}
                         onChange={(e) => updateRoot("signedBy", e.target.value)}
                         placeholder="Enter signer name"
@@ -753,13 +756,14 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Notes</Label>
                       <Textarea
+                        className="min-h-[110px] rounded-2xl bg-white"
                         rows={4}
                         value={data.notes || ""}
                         onChange={(e) => updateRoot("notes", e.target.value)}
                       />
                     </Field>
 
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm">
+                    <div className="builder-summary-card rounded-2xl p-4 text-sm">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-slate-600">Subtotal</span>
@@ -799,6 +803,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Delivered By</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.deliveredBy || ""}
                         onChange={(e) => updateRoot("deliveredBy", e.target.value)}
                       />
@@ -807,6 +812,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Received By</Label>
                       <Input
+                        className="h-11 rounded-xl bg-white"
                         value={data.receivedBy || ""}
                         onChange={(e) => updateRoot("receivedBy", e.target.value)}
                       />
@@ -815,6 +821,7 @@ export function DocumentBuilder() {
                     <Field>
                       <Label>Notes</Label>
                       <Textarea
+                        className="min-h-[110px] rounded-2xl bg-white"
                         rows={4}
                         value={data.notes || ""}
                         onChange={(e) => updateRoot("notes", e.target.value)}
@@ -841,7 +848,7 @@ export function DocumentBuilder() {
                     type="button"
                     variant={fitPreview ? "default" : "outline"}
                     onClick={() => setFitPreview((prev) => !prev)}
-                    className="w-full sm:w-auto"
+                    className="w-full rounded-xl sm:w-auto"
                   >
                     {fitPreview ? "Fit Preview: On" : "Fit Preview: Off"}
                   </Button>
@@ -850,17 +857,16 @@ export function DocumentBuilder() {
                     type="button"
                     variant="outline"
                     onClick={handleDownloadPdf}
-                    disabled={isDownloading}
-                    className="w-full gap-2 sm:w-auto"
+                    className="w-full rounded-xl gap-2 bg-white sm:w-auto"
                   >
                     <Download className="h-4 w-4" />
-                    {isDownloading ? "Generating PDF..." : "Download PDF"}
+                    Download PDF
                   </Button>
 
                   <Button
                     type="button"
                     onClick={handlePrint}
-                    className="w-full gap-2 sm:w-auto"
+                    className="w-full rounded-xl gap-2 sm:w-auto"
                   >
                     <Printer className="h-4 w-4" />
                     Print Preview
@@ -878,7 +884,6 @@ export function DocumentBuilder() {
                   <div className={fitPreview ? "preview-fit-inner" : ""}>
                     <div
                       id="print-document"
-                      ref={printableRef}
                       className="w-[210mm] max-w-none"
                     >
                       <DocumentPreview
@@ -893,7 +898,7 @@ export function DocumentBuilder() {
             </div>
 
             <p className="screen-only mt-3 text-xs text-slate-500">
-              PDF export creates a real A4 soft copy using the current document content.
+              Download PDF opens the print dialog. Choose “Save as PDF” for a soft copy.
             </p>
           </section>
         </div>
@@ -910,13 +915,13 @@ function BuilderSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white">
-      <div className="border-b border-slate-200 px-3 py-3 sm:px-4">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-sm">
+    <section className="builder-section rounded-3xl">
+      <div className="border-b border-slate-200/80 px-4 py-4">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
           {title}
         </h3>
       </div>
-      <div className="p-3 sm:p-4">{children}</div>
+      <div className="p-4">{children}</div>
     </section>
   );
 }
@@ -926,5 +931,5 @@ function Field({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="grid min-w-0 gap-2">{children}</div>;
+  return <div className="grid min-w-0 gap-2.5">{children}</div>;
 }
